@@ -144,7 +144,7 @@ languageName = ":uk:"
 [[languages.en.menu.main]]
 name = "About"
 weight = 1
-url = "about/index.hideColorSchemeToggle"
+url = "about/"
 
 [[languages.en.menu.main]]
 name = "Blog"
