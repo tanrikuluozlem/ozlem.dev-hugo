@@ -1,0 +1,48 @@
+name: Deploy to AWS S3
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_DEFAULT_REGION: us-east-1  
+      BUCKET_NAME: ozlemdevstack-websitebucket75c24d94-1880fhdngyuet  
+
+    steps:
+      - name: Install snap
+        run: sudo apt install snapd
+
+      - name: Install Hugo
+        run: sudo snap install hugo
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
+      - name: Submodule update
+        run: |
+          git submodule init
+          git submodule update --recursive
+
+      - name: Build
+        run: hugo
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Copy files to AWS S3 with AWS CLI
+        run: |
+          aws s3 sync ./public s3://${{ env.BUCKET_NAME }}/
