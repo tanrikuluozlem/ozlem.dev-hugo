@@ -14,7 +14,8 @@ jobs:
 
     env:
       AWS_DEFAULT_REGION: us-east-1  
-      BUCKET_NAME: ozlemdevstack-websitebucket75c24d94-1880fhdngyuet  
+      BUCKET_NAME: ozlemdevstack-websitebucket75c24d94-1880fhdngyuet 
+      DISTRIBUTION_ID: E3F0U6LXRBZDGW
 
     steps:
       - name: Install snap
@@ -46,3 +47,9 @@ jobs:
       - name: Copy files to AWS S3 with AWS CLI
         run: |
           aws s3 sync ./public s3://${{ env.BUCKET_NAME }}/
+
+      -name: Invalidate cloudfront
+        run: |
+          aws create-invalidation --paths '/*' --distribution-id ${{ env.BUCKET_NAME }} 
+
+
