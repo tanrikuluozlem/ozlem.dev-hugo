@@ -80,5 +80,3 @@ spec:
 In this setup, the ecr-login.sh script is the key. It uses the AWS CLI to get an authorization token from ECR and decode it so ArgoCD can access the images. I set it up to run every time ArgoCD needs to connect to the registry.
 
 Once that YAML was ready, I applied it to the cluster. Now, ArgoCD Image Updater automatically pulls and updates the images from ECR without me needing to worry about it. Rancher keeps my cluster in check, and everything just works smoothly. It’s been a huge time-saver for me in production. """ slug = "" authors = [] tags = [] categories = [] externalLink = "" series = [] +++
-
-Stay Curious
