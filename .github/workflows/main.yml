@@ -19,10 +19,10 @@ jobs:
 
     steps:
       - name: Install snap
-        run: sudo apt install snapd
+        run: sudo apt install snapd golang-go
 
       - name: Install Hugo
-        run: sudo snap install hugo
+        run: go install github.com/gohugoio/hugo@v0.124.0
 
       - name: Checkout repository
         uses: actions/checkout@v3
