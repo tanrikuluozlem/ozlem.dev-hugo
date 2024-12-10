@@ -1,7 +1,7 @@
 +++ 
 draft = false
-date = 2023-10-20T13:27:54+03:00
-title = "Hello everyone!"
+date = 2024-12-10T10:08:53+02:00
+title = ""
 description = ""
 slug = ""
 authors = []
@@ -11,4 +11,4 @@ externalLink = ""
 series = []
 +++
 
-Stay Curious
+Hello World.
