@@ -21,14 +21,14 @@ jobs:
       - name: Install snap
         run: sudo apt install snapd golang-go
 
-      - name: Install go1.21
-        run: go install golang.org/dl/go1.21@latest
+      - name: Install go1.20
+        run: go install golang.org/dl/go1.20@latest
 
-      - name: Download go1.21
-        run: go1.21 download
+      - name: Download go1.20
+        run: go1.20 download
 
       - name: Install Hugo
-        run: go1.21 install github.com/gohugoio/hugo@v0.124.0
+        run: go1.20 install github.com/gohugoio/hugo@v0.124.0
 
       - name: Checkout repository
         uses: actions/checkout@v3
