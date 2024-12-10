@@ -18,11 +18,13 @@ jobs:
       DISTRIBUTION_ID: E3F0U6LXRBZDGW
 
     steps:
-      - name: Install snap
-        run: sudo apt install snapd
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: 1.20
 
@@ -34,11 +36,6 @@ jobs:
 
       - name: Install Hugo
         run: go install github.com/gohugoio/hugo@v0.124.0
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          submodules: 'true'
 
       - name: Submodule update
         run: |
