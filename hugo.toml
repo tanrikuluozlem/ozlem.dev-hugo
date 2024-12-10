@@ -139,7 +139,7 @@ url = "http://linkedin.com/in/ozlemtanrikulu"
 
 [[params.social]]
 name = "Bluesky"
-icon = "fa fa-2x fa-bluesky"
+icon = "fa fa-2x fa-bold"
 weight = 4
 url = "https://bsky.app/profile/ozlemtanrikulu.bsky.social"
 
