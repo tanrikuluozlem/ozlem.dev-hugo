@@ -35,7 +35,7 @@ jobs:
       #   run: go1.20 download
 
       - name: Install Hugo
-        run: go install github.com/gohugoio/hugo@v0.124.0
+        run: go install github.com/gohugoio/hugo@v0.120.4
 
       - name: Submodule update
         run: |
