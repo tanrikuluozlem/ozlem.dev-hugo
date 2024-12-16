@@ -28,7 +28,10 @@ I needed this secret later to authenticate with Amazon ECR, and it’s reference
 - Deploy Argo Image-Updater to Your Cluster (Rancher or Self-Hosted)
 
 With the credentials in place, I went ahead and deployed the ArgoCD Image Updater. The Image Updater plays a key role in the cluster by automatically detecting new container images and updating deployments without manual intervention. It’s especially useful for keeping workloads up-to-date with the latest container versions from ECR. You can learn more about it in the link [ArgoCD Image Updater documentation](https://argocd-image-updater.readthedocs.io/en/stable/)
+
 Here’s the YAML configuration I used, which sets it up to pull images from ECR and deploy them to my Kubernetes cluster.
+
+{{< highlight yaml >}}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -85,5 +88,8 @@ spec:
  syncOptions:
  - CreateNamespace=true
  - ServerSideApply=true
+{{</ highlight >}}
+
+
 In this setup, the `ecr-login.sh` script is the key. It uses the AWS CLI to get an authorization token from ECR and decode it so ArgoCD can access the images. I set it up to run every time ArgoCD needs to connect to the registry.
 Once that YAML was ready, I applied it to the cluster. Now, ArgoCD Image Updater automatically pulls and updates the images from ECR without me needing to worry about it. Rancher keeps my cluster in check, and everything just works smoothly. It’s been a huge time-saver for me in production.
