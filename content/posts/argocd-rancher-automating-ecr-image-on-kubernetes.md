@@ -13,7 +13,8 @@ series = []
 
 
 Here’s how I set up ArgoCD Image Updater to pull container images from Amazon ECR on my Rancher-managed Kubernetes cluster.
-Create AWS Credentials
+
+- Create AWS Credentials
 The first thing I did was create a Kubernetes secret to hold my AWS credentials, so ArgoCD could authenticate against ECR. It’s simple — just run this command to store the AWS access key and secret in the cluster:
 {{< highlight bash >}}
 kubectl create secret generic aws-creds-for-ecr \
@@ -22,7 +23,8 @@ kubectl create secret generic aws-creds-for-ecr \
  -n argocd
 {{</ highlight >}}
 I needed this secret later to authenticate with Amazon ECR, and it’s referenced in the ArgoCD configuration.
-Deploy Argo Image-Updater to Your Cluster (Rancher or Self-Hosted)
+
+- Deploy Argo Image-Updater to Your Cluster (Rancher or Self-Hosted)
 With the credentials in place, I went ahead and deployed the ArgoCD Image Updater. The Image Updater plays a key role in the cluster by automatically detecting new container images and updating deployments without manual intervention. It’s especially useful for keeping workloads up-to-date with the latest container versions from ECR. You can learn more about it in the link [ArgoCD Image Updater documentation]
 Here’s the YAML configuration I used, which sets it up to pull images from ECR and deploy them to my Kubernetes cluster.
 apiVersion: argoproj.io/v1alpha1
