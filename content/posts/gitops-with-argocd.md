@@ -1,6 +1,6 @@
 +++ 
 draft = false
-date = date = "2024-12-20T16:57:50+03:00"
+date = "2024-12-20T16:57:50+03:00"
 title = "GitOps with ArgoCD: Managing Pull Requests Across Separate Repositories"
 
 slug = ""

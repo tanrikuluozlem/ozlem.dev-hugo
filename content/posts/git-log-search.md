@@ -1,6 +1,6 @@
 +++ 
 draft = false
-date = 2023-10-20T13:27:54+03:00
+date = "2024-12-06T00:00:00+03:00"
 title = "Speed Up Your Code Search with git log -S: A Time-Saving Tip"
 
 slug = ""

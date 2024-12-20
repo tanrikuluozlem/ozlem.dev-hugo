@@ -1,6 +1,6 @@
 +++ 
 draft = false
-date = 2023-10-20T13:27:54+03:00
+date = "2024-09-28T00:00:00+03:00"
 title = "How ArgoCD and Rancher Saved Me Time by Automating ECR Image Updates on Kubernetes"
 
 slug = ""
