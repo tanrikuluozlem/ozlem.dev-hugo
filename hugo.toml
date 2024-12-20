@@ -16,7 +16,7 @@ author = "Ozlem Tanrikulu"
 license = '<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA-4.0</a>'
 description = "Ozlem Tanrikulu's personal website"
 keywords = "blog,developer,devops,personal"
-info = ["Cloud & DevOps Engineer", "Backend Developer"]
+info = ["Cloud & DevOps Engineer", "Backend Hunter"]
 avatarURL = "images/ozlem.jpg"
 dateFormat = "January 2, 2006"
 since = 2023
@@ -152,10 +152,10 @@ url = "https://medium.com/@ozlemtanrikulu"
 [languages.en]
 languageName = ":uk:"
 
-[[languages.en.menu.main]]
-name = "About"
-weight = 1
-url = "about/"
+#[[languages.en.menu.main]]
+#name = "About"
+#weight = 1
+#url = "about/"
 
 [[languages.en.menu.main]]
 name = "Blog"
