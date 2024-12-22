@@ -109,8 +109,6 @@ spec:
     spec:
       project: default
       source:
-        #chart: neu-residence-hub-backend
-        #targetRevision: 0.1.0
         path: backend/chart
         repoURL: https://github.com/dog/dog.git
         helm:
