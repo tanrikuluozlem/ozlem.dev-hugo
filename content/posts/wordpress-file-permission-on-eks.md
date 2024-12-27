@@ -1,6 +1,6 @@
 +++ 
 draft = false
-date = "2024-12-27T16:57:50+03:00"
+date = "2024-12-27T00:00:00+03:00"
 title = "How I Fixed WordPress File Permission Issues on EKS"
 
 slug = ""
