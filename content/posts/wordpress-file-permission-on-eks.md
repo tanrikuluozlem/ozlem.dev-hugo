@@ -19,7 +19,7 @@ Accessing the S3 Bucket
 
 In addition to accessing the WordPress files on EFS, I also needed to retrieve files from an S3 bucket and transfer them to EFS. By using the [EC2 instance profile](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html) feature, I was able to grant the EC2 instance access to the S3 bucket without storing any credentials on the instance. This made the process secure and efficient.
 
-I created an EC2 instance from the AWS Console with the right IAM roles and network access to connect to the EFS storage. Then I accessed the instance directly from the AWS Console..
+I created an EC2 instance from the AWS Console with the right IAM roles and network access to connect to the EFS storage. Then I accessed the instance directly from the AWS Console.
 
 Mounting EFS on EC2
 
