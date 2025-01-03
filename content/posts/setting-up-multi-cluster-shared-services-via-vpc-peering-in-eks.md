@@ -64,5 +64,4 @@ Wrapping Up
 
 Setting up shared services across EKS clusters via VPC peering isn’t terribly complex, but it does require careful planning. The key is to avoid overlapping IP ranges, properly configure VPC peering, and expose services in a way that makes them accessible to other clusters. With a bit of foresight and testing, you’ll have a robust setup that works seamlessly.
 
-Have you set up something similar? Or run into any weird issues? Drop a comment and let’s discuss!
 
