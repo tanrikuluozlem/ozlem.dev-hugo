@@ -1,7 +1,7 @@
 +++ 
 draft = false
-date = "2024-12-27T00:00:00+03:00"
-title = "How I Fixed WordPress File Permission Issues on EKS"
+date = "2025-01-03T00:00:00+03:00"
+title = "Setting Up Multi-Cluster Shared Services via VPC Peering in EKS"
 
 slug = ""
 authors = []
@@ -11,66 +11,57 @@ externalLink = ""
 series = []
 +++
 
-I recently faced an issue with file permissions on my WordPress setup running on EKS. The problem was that I couldn’t switch to the root user in my debug container due to restrictions in the image.
+When working with multiple Amazon EKS clusters in different VPCs, sharing services across clusters can feel like a bit of maze. But, with VPC peering, it’s much easier than it sounds . I recently had to set this up, and I thought I’d share my approach, some potential pitfalls, and what to keep in mind. Hopefully, this helps make your setup smoother.
 
-To work around this, I launched a small EC2 t4g.micro instance with ARM architecture. I used an instance profile to securely access the S3 bucket, which allowed me to retrieve the necessary files without storing credentials on the EC2 instance.
 
-Accessing the S3 Bucket
+Understanding the Basics: VPC Peering and IP Ranges
 
-In addition to accessing the WordPress files on EFS, I also needed to retrieve files from an S3 bucket and transfer them to EFS. By using the [EC2 instance profile](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html) feature, I was able to grant the EC2 instance access to the S3 bucket without storing any credentials on the instance. This made the process secure and efficient.
+Before diving into the setup, let’s get one thing clear: VPC peering allows two VPCs to communicate as if they were part of the same network. This is the backbone of our setup. However, when using EKS, you’ll need to keep an eye on two IP ranges per cluster:
 
-I created an EC2 instance from the AWS Console with the right IAM roles and network access to connect to the EFS storage. Then I accessed the instance directly from the AWS Console.
 
-Mounting EFS on EC2
+* Pod Network CIDR: This is the IP range assigned to your Pods.
+* Service ClusterIP Range: This is the IP range used for Kubernetes services.
 
-Since the WordPress files were stored on EFS as persistent volume claims (PVCs), I needed to mount the EFS filesystem to the EC2 instance to access these files.
+If the CIDR ranges of one cluster overlap with the other, you’re going to have a bad time. VPC peering won’t work properly, and you’ll likely run into routing issues. So, take some time during the planning phase to ensure these ranges are unique across all clusters.
 
-1. Install NFS Utilities: First, I installed the NFS client utilities on the EC2 instance:
+Planning the IP Ranges
 
-{{< highlight bash >}}
+Once your EKS cluster is up and running, the Pod Network CIDR and Service ClusterIP ranges are locked in. You can’t go back and change them later without rebuilding the cluster. That’s why getting it right during the planning phase is so important.Spend the time upfront to define non-overlapping ranges for each cluster!
 
-sudo yum install -y nfs-utils
+For example:
 
-{{</ highlight >}}
+* Cluster A: Pod Network CIDR: 10.0.0.0/16, Service ClusterIP Range: 172.20.0.0/16
+* Cluster B: Pod Network CIDR: 10.1.0.0/16, Service ClusterIP Range: 172.21.0.0/16
 
-2. Create a Mount Directory: I created a directory on the EC2 instance to mount the EFS volume:
+With ranges like these, you’re in the clear for VPC peering.
 
-{{< highlight bash >}}
+Setting Up VPC Peering
 
-sudo mkdir /efs
+Once the CIDRs are sorted, you can set up VPC peering between the VPCs hosting your clusters. You’ll need to:
 
-{{</ highlight >}}
+1. Create a VPC peering connection between the two VPCs.
+2. Update route tables in both VPCs to allow communication.
+3. Modify security groups to allow traffic between the clusters.
 
-3. Mount the EFS Filesystem: I mounted the EFS filesystem to the directory using the following command (replacing <efs-id> with my EFS ID):
+AWS makes this relatively straightforward, but don’t forget to test connectivity using something like a simple ping between the nodes of the two clusters.
 
-{{< highlight bash >}}
+Exposing Services Across Clusters
 
-sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport \
-<efs-id>.efs.eu-central-1.amazonaws.com:/ /efs
+Now, let’s talk about how to actually share services between clusters. The approach I took was exposing services in one cluster via NodePort and consuming them in the other cluster. Here’s what this looks like:
 
-{{</ highlight >}}
+1. In Cluster A, expose a service as a NodePort. This makes the service accessible on a specific port on the nodes.
+2. Use the private IP of the node and the NodePort to access the service from Cluster B.
 
-Once I had access to the WordPress files, I needed to set the correct file permissions.
+For instance, if you’ve got a service in Cluster A exposed on port 30001, and the node IP is 10.0.0.5, you’d access it in Cluster B using http://10.0.0.5:30001.
 
-Navigate to the WordPress Files: I went to the directory where the WordPress files were stored:
+Tips And Things to Watch Out For
 
-{{< highlight bash >}}
+1. DNS Doesn’t Work by Default: If you’re using Kubernetes service names to resolve between clusters, that won’t work out of the box. Consider using something like external DNS if needed.
+2. Security Groups Matter: Don’t forget to open up the necessary ports in your security groups for inter-cluster communication.
+3. Test: Verify the connection before rolling out anything to production. A simple curl command can save you hours of troubleshooting later.
 
-cd /efs/<wordpress-directory>
+Wrapping Up
 
-{{</ highlight >}}
+Setting up shared services across EKS clusters via VPC peering isn’t terribly complex, but it does require careful planning. The key is to avoid overlapping IP ranges, properly configure VPC peering, and expose services in a way that makes them accessible to other clusters. With a bit of foresight and testing, you’ll have a robust setup that works seamlessly.
+Have you set up something similar? Or run into any weird issues? Drop a comment and let’s discuss!
 
-Then, I updated the file permissions, which was not possible to do so in the container:
-
-{{< highlight bash >}}
-
-sudo chmod -R 755 wp-content
-sudo chown -R www-data:www-data wp-content
-
-{{</ highlight >}}
-
-Just make sure you unmount the EFS file system before you are done.
-
-In a nutshell, by using EC2, S3, and EFS, I was able to manage my WordPress files on EKS and set the correct file permissions without storing credentials on the EC2 instance.
-
-If you have any suggestions to handle the situation in a better way, please leave a comment.
