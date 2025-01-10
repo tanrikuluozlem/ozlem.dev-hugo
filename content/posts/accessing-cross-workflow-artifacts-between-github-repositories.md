@@ -1,7 +1,7 @@
 +++ 
 draft = false
-date = "2025-01-03T00:00:00+03:00"
-title = "Setting Up Multi-Cluster Shared Services via VPC Peering in EKS"
+date = "2025-01-10T00:00:00+03:00"
+title = "Accessing Cross-Workflow Artifacts Between Repositories"
 
 slug = ""
 authors = []
@@ -11,57 +11,103 @@ externalLink = ""
 series = []
 +++
 
-When working with multiple Amazon EKS clusters in different VPCs, sharing services across clusters can feel like a bit of maze. But, with VPC peering, it’s much easier than it sounds . I recently had to set this up, and I thought I’d share my approach, some potential pitfalls, and what to keep in mind. Hopefully, this helps make your setup smoother.
+Recently, while working on a project with multiple repositories, I ran into an interesting challenge. I needed to fetch an artifact created by a GitHub Actions workflow from a different repository. This wasn't just a theoretical problem .It was a real blocker in my CI/CD pipeline. After some research, I found a way to make it work.
 
+I had two repositories:
 
-Understanding the Basics: VPC Peering and IP Ranges
+* Auth Service Repository: This repository handled authentication for our platform and published a custom binary as an artifact.
+* API Gateway Repository: This repository needed the binary from the Auth Service to run its integration tests during its own GitHub Actions workflow.
 
-Before diving into the setup, let’s get one thing clear: VPC peering allows two VPCs to communicate as if they were part of the same network. This is the backbone of our setup. However, when using EKS, you’ll need to keep an eye on two IP ranges per cluster:
+I had to fetch the binary artifact from the Auth Service repository into the API Gateway workflow. While both repositories belonged to the same organization, GitHub Actions doesn't allow direct cross-repository artifact access without proper setup.
 
+After a bit of trial and error, I figured out the process to securely fetch the artifact. Here's what worked for me:
 
-* Pod Network CIDR: This is the IP range assigned to your Pods.
-* Service ClusterIP Range: This is the IP range used for Kubernetes services.
+Create a GitHub Personal Access Token
 
-If the CIDR ranges of one cluster overlap with the other, you’re going to have a bad time. VPC peering won’t work properly, and you’ll likely run into routing issues. So, take some time during the planning phase to ensure these ranges are unique across all clusters.
+The first step was to create a GitHub Personal Access Token (PAT) with the right permissions. Since the artifact was in the Auth Service repository, the PAT needed the actions:read scope for that repository.
 
-Planning the IP Ranges
+Here's how I created it:
 
-Once your EKS cluster is up and running, the Pod Network CIDR and Service ClusterIP ranges are locked in. You can’t go back and change them later without rebuilding the cluster. That’s why getting it right during the planning phase is so important.Spend the time upfront to define non-overlapping ranges for each cluster!
+1. Went to Settings > Developer Settings > Personal Access Tokens > Tokens (Fine-grained tokens).
+2. Generated a new token with actions:read permission for the Auth Service repository.
+3. Added this token as a secret (AUTH_SERVICE_PAT) in the API Gateway repository's GitHub Actions secrets.
 
-For example:
+Identify the Workflow Run (run_id)
 
-* Cluster A: Pod Network CIDR: 10.0.0.0/16, Service ClusterIP Range: 172.20.0.0/16
-* Cluster B: Pod Network CIDR: 10.1.0.0/16, Service ClusterIP Range: 172.21.0.0/16
+Next, I needed the run_id of the workflow run in the Auth Service repository that created the artifact. There were two ways to find this:
 
-With ranges like these, you’re in the clear for VPC peering.
+* Option A: Manually
 
-Setting Up VPC Peering
+I navigated to the Actions tab in the Auth Service repository, found the specific workflow run I needed, and copied its run_id from the URL (it's the number after /runs/).
 
-Once the CIDRs are sorted, you can set up VPC peering between the VPCs hosting your clusters. You’ll need to:
+* Option B: Dynamically via API
 
-1. Create a VPC peering connection between the two VPCs.
-2. Update route tables in both VPCs to allow communication.
-3. Modify security groups to allow traffic between the clusters.
+For automation, I used the GitHub API to fetch the run_id:
 
-AWS makes this relatively straightforward, but don’t forget to test connectivity using something like a simple ping between the nodes of the two clusters.
+{{< highlight bash >}}
 
-Exposing Services Across Clusters
+curl -H "Authorization: token ${{ secrets.AUTH_SERVICE_PAT }}" \
+     https://api.github.com/repos/auth-service-owner/auth-service/actions/runs
 
-Now, let’s talk about how to actually share services between clusters. The approach I took was exposing services in one cluster via NodePort and consuming them in the other cluster. Here’s what this looks like:
+{{</ highlight >}}
 
-1. In Cluster A, expose a service as a NodePort. This makes the service accessible on a specific port on the nodes.
-2. Use the private IP of the node and the NodePort to access the service from Cluster B.
+This returned a list of workflow runs. I filtered the response to find the specific workflow run based on the branch name, commit hash, or creation time.
 
-For instance, if you’ve got a service in Cluster A exposed on port 30001, and the node IP is 10.0.0.5, you’d access it in Cluster B using http://10.0.0.5:30001.
+Download the Artifact
 
-Tips And Things to Watch Out For
+With the run_id, I could fetch the artifact from the Auth Service repository. Using another GitHub API call, I downloaded the artifact as a ZIP file:
 
-1. DNS Doesn’t Work by Default: If you’re using Kubernetes service names to resolve between clusters, that won’t work out of the box. Consider using something like external DNS if needed.
-2. Security Groups Matter: Don’t forget to open up the necessary ports in your security groups for inter-cluster communication.
-3. Test: Verify the connection before rolling out anything to production. A simple curl command can save you hours of troubleshooting later.
+If you're new to GitHub Actions artifacts, you can read more about [artifacts in GitHub Actions](https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts)
 
-Wrapping Up
+{{< highlight bash >}}
 
-Setting up shared services across EKS clusters via VPC peering isn’t terribly complex, but it does require careful planning. The key is to avoid overlapping IP ranges, properly configure VPC peering, and expose services in a way that makes them accessible to other clusters. With a bit of foresight and testing, you’ll have a robust setup that works seamlessly.
+curl -H "Authorization: token ${{ secrets.AUTH_SERVICE_PAT }}" \
+     -L "https://api.github.com/repos/auth-service-owner/auth-service/actions/runs/RUN_ID/artifacts" \
+     -o auth-service-artifact.zip
 
+{{</ highlight >}}
 
+After downloading, I unzipped it to access the binary.
+
+Automate the Process in the API Gateway Workflow
+
+To make the process seamless, I incorporated these steps into the API Gateway's GitHub Actions workflow. Here's what the workflow looked like:
+
+{{< highlight yaml >}}
+
+name: Integration Tests with Auth Service Artifact  
+
+on:
+  push:
+    branches:
+      - main  
+
+jobs:
+  fetch-and-test:
+    runs-on: ubuntu-latest  
+
+    steps:
+      - name: Fetch Auth Service Workflow Run ID
+        run: |
+          RUN_ID=$(curl -H "Authorization: token ${{ secrets.AUTH_SERVICE_PAT }}" \
+            https://api.github.com/repos/auth-service-owner/auth-service/actions/runs \
+            | jq -r '.workflow_runs[] | select(.status=="completed") | .id | first')
+          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV  
+
+      - name: Download Auth Service Artifact
+        run: |
+          curl -H "Authorization: token ${{ secrets.AUTH_SERVICE_PAT }}" \
+               -L "https://api.github.com/repos/auth-service-owner/auth-service/actions/runs/${{ env.RUN_ID }}/artifacts" \
+               -o auth-service-artifact.zip
+          unzip auth-service-artifact.zip -d auth-binary  
+
+      - name: Run Integration Tests
+        run: |
+          ./auth-binary/binary --start
+          ./run-api-tests.sh
+
+{{</ highlight >}}
+
+Final Thoughts
+
+Accessing cross-workflow artifacts might seem tricky at first, but with the right approach, it's completely manageable. This experience not only helped me solve a pressing issue but also deepened my understanding of GitHub Actions and CI/CD pipelines.
