@@ -11,7 +11,7 @@ externalLink = ""
 series = []
 +++
 
-Recently, while working on a project with multiple repositories, I ran into an interesting challenge. I needed to fetch an artifact created by a GitHub Actions workflow from a different repository. This wasn't just a theoretical problem .It was a real blocker in my CI/CD pipeline. After some research, I found a way to make it work.
+Recently, while working on a project with multiple repositories, I ran into an interesting challenge. I needed to fetch an artifact created by a GitHub Actions workflow from a different repository. This wasn't just a theoretical problem.It was a real blocker in my CI/CD pipeline. After some research, I found a way to make it work.
 
 I had two repositories:
 
