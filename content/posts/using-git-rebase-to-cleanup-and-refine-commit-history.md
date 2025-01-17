@@ -39,20 +39,19 @@ git rebase -i HEAD~6
 
 This command brought up an editor showing my recent commits:
 
-{{< highlight >}}
+```
+ pick 43d5cee perf(neu-web-test): Scale down wp-test hpa min replicas
+ pick 88ccfc2 feat(loki): Add chunksCache and resultsCache resources 
+ pick 825ca0d Fix typo in adding chunksCahce logic
+ pick a9f12b3 increase cpu requests 
+ pick bd9e4a8 Update README
+ pick 05d3f61 read only Friday :)
+```
 
-pick 43d5cee perf(neu-web-test): Scale down wp-test hpa min replicas
-pick 88ccfc2 feat(loki): Add chunksCache and resultsCache resources 
-pick 825ca0d Fix typo in adding chunksCahce logic
-pick a9f12b3 increase cpu requests 
-pick bd9e4a8 Update README
-pick 05d3f61 read only Friday :)
-
-{{</ highlight >}}
 
 In the rebase editor, I updated the commands to specify what I wanted to do with each commit:
 
-{{</ highlight >}}
+```
 
 pick 43d5cee perf(neu-web-test): Scale down wp-test hpa min replicas
 pick 88ccfc2 feat(loki): Add chunksCache and resultsCache resources 
@@ -61,7 +60,7 @@ pick a9f12b3 increase cpu requests
 reword bd9e4a8 Update README
 reword 05d3f61 read only Friday :)
 
-{{< highlight >}}
+```
 
 Here's what these commands mean:
 
@@ -75,31 +74,31 @@ After saving the file, Git guided me through the changes step by step.
 
 For the commit "read only Friday :)", I rewrote the message to something clearer:
 
-{{</ highlight >}}
+```
 
 Restrict editing to Fridays
 
-{{</ highlight >}}
+```
 
 Update README with setup instructions
 
-{{</ highlight >}}
+```
 
 Update README with setup instructions
 
-{{</ highlight >}}
+```
 
 Once the rebase was complete, I checked the updated commit history:
 
-{{</ highlight bash >}}
+```
 
 git log --oneline
 
-{{</ highlight >}}
+```
 
 The new history looked like this:
 
-{{</ highlight >}}
+```
 
 43d5cee perf(neu-web-test): Scale down wp-test hpa min replicas
 88ccfc2 feat(loki): Add chunksCache and resultsCache resources 
@@ -107,7 +106,7 @@ a9f12b3 increase cpu requests
 bd9e4a8 Update README with setup instructions
 05d3f61 Restrict editing to Fridays
 
-{{</ highlight >}}
+```
 
 Organizing my commit history with Git rebase wasn't just about the technical details it was about presenting my work in the best light possible. Now, I feel confident sharing my repository with collaborators, knowing it's clear and easy to navigate.
 
