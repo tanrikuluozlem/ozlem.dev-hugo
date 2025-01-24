@@ -122,7 +122,7 @@ module "eks_karpenter" {
   }
 }
 
-{{</ highlight tf>}}
+{{</ highlight >}}
 
 Btw, it is important to set "ENABLE_PREFIX_DELEGATION" : "true" in vpc_cni add-on's env, otherwise max pods that your node can run will be limited to the number of ENI interfaces that can be attached to the instance.
 
