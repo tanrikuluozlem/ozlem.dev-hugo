@@ -253,7 +253,7 @@ permissions:
 
 Then, I edited the jobs Step 1:
 
-{{</ highlight yaml>}}
+{{< highlight yaml>}}
 
 - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
