@@ -99,7 +99,7 @@ Next, I created an IAM role that GitHub Actions can assume. This role includes a
 * Allow only GitHub Actions workflows from neusysadmin/* to assume the role.
 * Ensure that only workflows with a valid OIDC token can authenticate.
 
-{{</ highlight tf >}}
+{{< highlight tf >}}
 
 resource "aws_iam_role" "github_oidc_role" {
   name = "xxxxxxxxxxxx"
