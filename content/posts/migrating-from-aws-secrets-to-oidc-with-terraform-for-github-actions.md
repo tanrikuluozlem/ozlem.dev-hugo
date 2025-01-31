@@ -77,7 +77,7 @@ import {
 
 The following part allows GitHub Actions to authenticate with AWS using OIDC tokens instead of secrets:
 
-{{</ highlight tf >}}
+{{< highlight tf >}}
 
 resource "aws_iam_openid_connect_provider" "github_oidc" {
   url            = "https://token.actions.githubusercontent.com"
@@ -137,7 +137,7 @@ Attach the Existing ecr_pusher Policy
 
 Since I already had an IAM policy (ecr_pusher) for pushing images to Amazon ECR, I attached it to the new IAM role.
 
-{{</ highlight tf >}}
+{{< highlight tf >}}
 
 resource "aws_iam_role_policy_attachment" "github_oidc" {
   role       = aws_iam_role.github_oidc_role.name
@@ -158,7 +158,7 @@ To use OIDC authentication, I updated my GitHub Actions workflow by adding the n
 Below is the full version of my docker-build-scan-push.yaml file:
 
 
-{{</ highlight yaml >}}
+{{< highlight yaml >}}
 
 on:
   workflow_call:
@@ -243,7 +243,7 @@ jobs:
 
 First, I added the necessary permissions:
 
-{{</ highlight yaml>}}
+{{< highlight yaml>}}
 
 permissions:
   id-token: write 
