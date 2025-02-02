@@ -17,7 +17,7 @@ In this post, I’ll explain how I implemented OIDC using Terraform, making the 
 
 Create an OIDC Identity Provider in AWS
 
-Instead of setting up the OIDC provider manually, I used Terraform to define it and import the existing AWS resources.
+As I wanted to put things under laC, l’ve imported existing resources from my earlier proof of concept setup, during which I had created the resources manually via AWS console.
 
 First, I created a github-oidc.tf file. Here's the full version:
 
