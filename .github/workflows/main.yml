@@ -23,6 +23,19 @@ jobs:
         with:
           submodules: 'true'
 
+      - name: Findout gopahth
+        id: findout-gopath
+        run: |
+          export GOBINPATH=$(go env GOPATH)/bin
+          echo "GOBINPATH=$GOBINPATH" >> $GITHUB_OUTPUT
+
+      - name: Cache go binaries
+        id: cache-go-binaries
+        uses: actions/cache@v4
+        with:
+          path: ${{steps.findout-gopath.outputs.GOBINPATH}}
+          key: go-bin-cache
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -35,6 +48,7 @@ jobs:
       #   run: go1.20 download
 
       - name: Install Hugo
+        if: steps.cache-go-binaries.outputs.cache-hit != 'true'
         run: go install github.com/gohugoio/hugo@v0.120.4
 
       - name: Submodule update
