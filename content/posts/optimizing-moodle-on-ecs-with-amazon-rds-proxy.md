@@ -182,4 +182,4 @@ By integrating RDS Proxy, I significantly improved database connection handling 
 
 With this setup, Moodle can now efficiently handle high traffic while maintaining stable database connections.
 
-🙋🏼‍♀️ Additionally, another way that enabling database persistence also helped resolve some connection issues by ensuring persistent database connections within Moodle’s configuration.
+🙋🏼‍♀️ Additionally, another way that enabling database persistence also helped resolve some connection issues by [ensuring persistent database connections](https://github.com/moodle/moodle/blob/5670447ece698da18e20d0f1984965535487feda/config-dist.php#L49) within Moodle’s configuration.
