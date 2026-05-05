@@ -1,6 +1,6 @@
 +++ 
 draft = false
-date = "2026-05-04T12:00:00+03:00"
+date = "2026-05-05T12:00:00+03:00"
 title = "33% of Our Kubernetes Bill Was Paying for Nothing"
 
 slug = ""
