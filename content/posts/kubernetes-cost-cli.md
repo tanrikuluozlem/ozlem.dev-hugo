@@ -58,7 +58,7 @@ This was on an actively maintained production cluster. There was just no easy wa
 
 I deleted the debug pods and rightsized argocd-dex-server that same day. Now I run `burn analyze` every week before sprint planning, it takes 30 seconds and keeps resource requests honest. The idle capacity question led to a node consolidation discussion that's still ongoing, but at least now it's a discussion backed by real numbers instead of guesswork.
 
-## Slack + AI
+## Slack integration
 
 I set up Slack integration so anyone on the team can check costs directly from Slack, just a slash command.
 
