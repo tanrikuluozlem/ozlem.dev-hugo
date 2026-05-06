@@ -22,19 +22,36 @@ So I built [Burn](https://github.com/tanrikuluozlem/burn). A single binary that 
 ## This is what it looks like
 
 ```
-$ burn analyze --prometheus http://prometheus:9090
+$ burn analyze --prometheus http://prometheus:9090 --period 7d
 
-NAMESPACE            PODS  CPU REQ→USED   COST/MO
-argocd               4     2.0 → 30m      $56
-amazon-cloudwatch    11    1.6 → 82m      $44
-kube-system          21    1.4 → 52m      $41
+Kubernetes Cost Report (7d avg)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Monthly: $350 | Idle: $117 (33%)
+Nodes: 5 | Pods: 77
+
+NAMESPACES
+──────────
+NAMESPACE            PODS  CPU REQ→USED  MEM REQ→USED   COST/MO
+argocd               4     2.0 → 30m     2.0Gi → 393Mi  $56
+amazon-cloudwatch    11    1.6 → 82m     829Mi → 1.3Gi  $44
+kube-system          21    1.4 → 52m     1.6Gi → 757Mi  $41
 ...and 7 more namespaces
-Idle (unallocated)                        $117
-Total                                     $350
+Idle (unallocated)                                     $117
+─────────────────────────────────────────────────────────
+Total                                                  $350
+
+LOAD BALANCERS
+──────────────
+NAME                        NAMESPACE    COST/MO
+app-ingress                 app-prod     $16
 
 COST BREAKDOWN
-Compute: $350 | Storage: $0 | LB: $16
-Total: $366
+━━━━━━━━━━━━━━
+Compute:         $350
+Storage:         $0
+Load Balancers:  $16
+Network:         $0
+Total:           $366
 ```
 
 That idle line, $117/month. A third of the entire cluster cost was capacity allocated to nodes but not used by any pod. Not over-provisioned pods, not inefficient workloads, just empty space on nodes.
