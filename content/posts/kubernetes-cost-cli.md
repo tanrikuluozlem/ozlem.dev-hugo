@@ -75,6 +75,24 @@ This was on an actively maintained production cluster. There was just no easy wa
 
 I deleted the debug pods and rightsized argocd-dex-server that same day. Now I run `burn analyze` every week before sprint planning, it takes 30 seconds and keeps resource requests honest. The idle capacity question led to a node consolidation discussion that's still ongoing, but at least now it's a discussion backed by real numbers instead of guesswork.
 
+## Ask questions from the terminal
+
+The other thing I wanted was to just ask a question and get an answer. Not navigate dashboards, not write PromQL, just type what I'm thinking:
+
+```bash
+burn ask --prometheus http://prometheus:9090 "where is the money going?"
+```
+
+It streams the response in real time, breaks down cost by namespace, highlights the biggest waste, and gives you the kubectl commands to fix it. The AI sees the full cluster data but every dollar amount comes from pre-calculated metrics, not from the model.
+
+You can also focus on a specific namespace:
+
+```bash
+burn analyze --prometheus http://prometheus:9090 --namespace argocd --ai
+```
+
+This gives pod-level recommendations using p95 usage data. For example: "p95 CPU is 0.22m → recommend 1m (1.5x p95 headroom)". No guessing, based on actual peak usage over the analysis period.
+
 ## Slack integration
 
 I set up Slack integration so anyone on the team can check costs directly from Slack, just a slash command.
@@ -87,20 +105,10 @@ I set up Slack integration so anyone on the team can check costs directly from S
 The natural language query is where it gets useful:
 
 ```
-/burn ask "why is staging so expensive?"
-
-→ Staging costs $1,120/mo at 12% resource efficiency.
-
-  Main drivers:
-  • load-test-runner scaled to 3 replicas on Apr 28 (+$230/mo)
-  • debug-sidecar added to payment-service, requests 500m CPU, using <1m
-
-  $ kubectl scale deployment load-test-runner -n staging --replicas=1
-  $ kubectl patch deployment payment-service-staging -n staging \
-    --type=json -p='[{"op":"remove","path":"/spec/template/spec/containers/1"}]'
+/burn ask "what is the single biggest waste?"
 ```
 
-You ask why something is expensive. It tells you the cause; what changed, when, and how much it's costing. And it gives you the kubectl commands to fix it.
+It analyzes the full cluster data and responds with the specific problem, the dollar amount, and the kubectl commands to fix it. Same streaming AI that works from the terminal, now available to the whole team from Slack.
 
 Every dollar amount is pre-calculated from real cluster metrics before the AI sees anything. The AI explains the results, it doesn't generate the numbers.
 
@@ -123,10 +131,10 @@ Burn also tracks storage and load balancer costs per namespace. Most tools only 
 For on-prem clusters where there's no cloud API:
 
 ```bash
-burn analyze --cpu-price 0.05 --ram-price 0.008 --gpu-price 3.00
+burn analyze --cpu-price 0.05 --ram-price 0.008 --gpu-price 3.00 --storage-price 0.10
 ```
 
-Set your own rates per CPU core, per GiB RAM, per GPU.
+Set your own rates per CPU core, per GiB RAM, per GPU, and per GiB storage.
 
 ## Try it
 
@@ -136,6 +144,8 @@ burn analyze --prometheus http://prometheus:9090
 ```
 
 Works without Prometheus too, uses Kubernetes API resource requests as a baseline. Also available as a Docker image, Helm chart, or Go binary. Runs on EKS, AKS, GKE, and on-prem.
+
+Here's a quick demo showing the cost report, AI analysis, and Slack integration: [watch on YouTube](https://youtu.be/uGVvaKXeTf4).
 
 If you run into anything or have ideas, [open an issue](https://github.com/tanrikuluozlem/burn/issues)! I read all of them.
 
